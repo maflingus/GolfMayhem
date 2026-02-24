@@ -19,7 +19,7 @@ namespace GolfMayhem.ChaosEventSystem.Events
 
         public override string DisplayName => "Fog of War";
         public override string WarnMessage => "A strange mist approaches...";
-        public override string ActivateMessage => "A thick fog has appeared on the map";
+        public override string ActivateMessage => "A thick fog has appeared on the map!";
         public override float Weight => Configuration.WeightFogOfWar.Value;
         public override bool IsEnabled => Configuration.EnableFogOfWar.Value;
 
