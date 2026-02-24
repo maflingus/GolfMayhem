@@ -79,8 +79,10 @@
     <Compile Include="API\GolfMayhemAPI.cs" />
     <Compile Include="ChaosEventSystem\ChaosEvent.cs" />
     <Compile Include="ChaosEventSystem\ChaosEventManager.cs" />
+    <Compile Include="ChaosEventSystem\Events\CoffeeEvent.cs" />
     <Compile Include="ChaosEventSystem\Events\FogOfWarEvent.cs" />
     <Compile Include="ChaosEventSystem\Events\GiantModeEvent.cs" />
+    <Compile Include="ChaosEventSystem\Events\GolfCartChaosEvent.cs" />
     <Compile Include="ChaosEventSystem\Events\GravityFlipEvent.cs" />
     <Compile Include="ChaosEventSystem\Events\MagnetHoleEvent.cs" />
     <Compile Include="ChaosEventSystem\Events\MineFloodEvent.cs" />

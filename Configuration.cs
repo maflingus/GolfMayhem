@@ -20,6 +20,8 @@ namespace GolfMayhem
         public static ConfigEntry<bool> EnableOrbitalStrike { get; private set; }
         public static ConfigEntry<bool> EnableGiantMode { get; private set; }
         public static ConfigEntry<bool> EnableNightTime { get; private set; }
+        public static ConfigEntry<bool> EnableGolfCartChaos { get; private set; }
+        public static ConfigEntry<bool> EnableCoffeeRush { get; private set; }
 
         // Event weight multipliers
         public static ConfigEntry<float> WeightGravityFlip { get; private set; }
@@ -31,6 +33,8 @@ namespace GolfMayhem
         public static ConfigEntry<float> WeightOrbitalStrike { get; private set; }
         public static ConfigEntry<float> WeightGiantMode { get; private set; }
         public static ConfigEntry<float> WeightNightTime { get; private set; }
+        public static ConfigEntry<float> WeightGolfCartChaos { get; private set; }
+        public static ConfigEntry<float> WeightCoffeeRush { get; private set; }
 
         // ── Physics Tweaks ────────────────────────────────────────────────────
         public static ConfigEntry<float> GravityFlipMultiplier { get; private set; }
@@ -40,9 +44,9 @@ namespace GolfMayhem
         {
             ChaosEventsEnabled = cfg.Bind("ChaosEvents", "Enabled", true,
                 "Master toggle for the Chaos Event system.");
-            ChaosEventIntervalMin = cfg.Bind("ChaosEvents", "IntervalMin", 10f,
+            ChaosEventIntervalMin = cfg.Bind("ChaosEvents", "IntervalMin", 0f,
                 "Minimum seconds between chaos events.");
-            ChaosEventIntervalMax = cfg.Bind("ChaosEvents", "IntervalMax", 45f,
+            ChaosEventIntervalMax = cfg.Bind("ChaosEvents", "IntervalMax", 30f,
                 "Maximum seconds between chaos events.");
             ChaosEventDuration = cfg.Bind("ChaosEvents", "Duration", 15f,
                 "How many seconds each chaos event lasts.");
@@ -56,16 +60,20 @@ namespace GolfMayhem
             EnableOrbitalStrike = cfg.Bind("ChaosEvents.Events", "OrbitalStrike", true, "Fires an orbital laser at every player simultaneously.");
             EnableGiantMode = cfg.Bind("ChaosEvents.Events", "GiantMode", true, "Grows every player and ball to 2.5x size.");
             EnableNightTime = cfg.Bind("ChaosEvents.Events", "NightTime", true, "Dims all lights and fades the scene to near darkness.");
+            EnableGolfCartChaos = cfg.Bind("ChaosEvents.Events", "GolfCartChaos", true, "Spawns a golf cart for every player simultaneously.");
+            EnableCoffeeRush = cfg.Bind("ChaosEvents.Events", "CoffeeRush", true, "Applies the coffee speed boost to every player.");
 
             WeightGravityFlip = cfg.Bind("ChaosEvents.Weights", "GravityFlip", 1.0f, "Relative spawn weight.");
-            WeightSpeedSurge = cfg.Bind("ChaosEvents.Weights", "SpeedSurge", 1.2f, "Relative spawn weight.");
+            WeightSpeedSurge = cfg.Bind("ChaosEvents.Weights", "SpeedSurge", 1.0f, "Relative spawn weight.");
             WeightMineFlood = cfg.Bind("ChaosEvents.Weights", "MineFlood", 1.0f, "Relative spawn weight.");
             WeightMagnetHole = cfg.Bind("ChaosEvents.Weights", "MagnetHole", 1.0f, "Relative spawn weight.");
             WeightFogOfWar = cfg.Bind("ChaosEvents.Weights", "FogOfWar", 1.0f, "Relative spawn weight.");
             WeightMiniature = cfg.Bind("ChaosEvents.Weights", "Miniature", 1.0f, "Relative spawn weight.");
-            WeightOrbitalStrike = cfg.Bind("ChaosEvents.Weights", "OrbitalStrike", 0.6f, "Relative spawn weight.");
+            WeightOrbitalStrike = cfg.Bind("ChaosEvents.Weights", "OrbitalStrike", 1.0f, "Relative spawn weight.");
             WeightGiantMode = cfg.Bind("ChaosEvents.Weights", "GiantMode", 1.0f, "Relative spawn weight.");
             WeightNightTime = cfg.Bind("ChaosEvents.Weights", "NightTime", 1.0f, "Relative spawn weight.");
+            WeightGolfCartChaos = cfg.Bind("ChaosEvents.Weights", "GolfCartChaos", 1.0f, "Relative spawn weight.");
+            WeightCoffeeRush = cfg.Bind("ChaosEvents.Weights", "CoffeeRush", 1.0f, "Relative spawn weight.");
 
             GravityFlipMultiplier = cfg.Bind("Physics", "GravityFlipMultiplier", -2.5f,
                 "Y-gravity during a GravityFlip event. Negative = upward.");

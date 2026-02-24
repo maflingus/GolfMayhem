@@ -54,6 +54,8 @@ namespace GolfMayhem.ChaosEventSystem
             Register(new Events.OrbitalStrikeEvent());
             Register(new Events.GiantModeEvent());
             Register(new Events.NightTimeEvent());
+            Register(new Events.GolfCartChaosEvent());
+            Register(new Events.CoffeeEvent());
         }
 
         public void Register(ChaosEvent evt)
@@ -93,6 +95,7 @@ namespace GolfMayhem.ChaosEventSystem
         {
             GolfMayhemPlugin.Log.LogInfo($"[ChaosEvent] WARNING: {evt.DisplayName}");
 
+            // Show warning in chat on all clients
             GolfMayhemNetwork.SendWarn(evt.NetworkId, evt.WarnMessage);
 
             yield return new WaitForSeconds(3f);
@@ -103,15 +106,18 @@ namespace GolfMayhem.ChaosEventSystem
             evt.OnActivate();
             OnChaosEventStarted?.Invoke(evt);
 
+            // Show activation in chat + trigger clients
             GolfMayhemNetwork.SendActivate(evt.NetworkId, evt.ActivateMessage);
 
             yield return new WaitForSeconds(Configuration.ChaosEventDuration.Value);
 
+            // Deactivate on host
             GolfMayhemPlugin.Log.LogInfo($"[ChaosEvent] DEACTIVATING: {evt.DisplayName}");
             evt.OnDeactivate();
             OnChaosEventEnded?.Invoke(evt);
             ActiveEvent = null;
 
+            // Show all-clear in chat + trigger clients
             GolfMayhemNetwork.SendDeactivate(evt.NetworkId, "Chaos subsides... for now.");
         }
 
