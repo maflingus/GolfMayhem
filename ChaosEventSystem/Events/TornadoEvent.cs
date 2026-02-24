@@ -3,15 +3,6 @@ using UnityEngine;
 
 namespace GolfMayhem.ChaosEventSystem.Events
 {
-    /// <summary>
-    /// CHAOS EVENT: Tornado
-    /// Each client runs this locally on their own player — Mirror's NetworkRigidbody
-    /// syncs the position to all other players naturally.
-    ///
-    /// The spiral is an inverted cone: starts tight at ground level, radius expands
-    /// and height increases over the duration, like being sucked up a tornado funnel.
-    /// On deactivate, gravity takes over and players fall back down.
-    /// </summary>
     public class TornadoEvent : ChaosEvent
     {
         // Tornado shape parameters
