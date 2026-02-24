@@ -56,6 +56,7 @@ namespace GolfMayhem.ChaosEventSystem
             Register(new Events.NightTimeEvent());
             Register(new Events.GolfCartChaosEvent());
             Register(new Events.CoffeeEvent());
+            Register(new Events.TornadoEvent());
         }
 
         public void Register(ChaosEvent evt)

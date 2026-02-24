@@ -90,6 +90,7 @@
     <Compile Include="ChaosEventSystem\Events\NightTimeEvent.cs" />
     <Compile Include="ChaosEventSystem\Events\OrbitalStrikeEvent.cs" />
     <Compile Include="ChaosEventSystem\Events\SpeedSurgeEvent.cs" />
+    <Compile Include="ChaosEventSystem\Events\TornadoEvent.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="GolfMayhemNetwork.cs" />
     <Compile Include="Patches\GameSessionPatches.cs" />
