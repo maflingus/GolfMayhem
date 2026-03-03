@@ -5,9 +5,9 @@ namespace GolfMayhem.ChaosEventSystem.Events
 {
     public class MineFloodEvent : ChaosEvent
     {
-        private const int MINE_COUNT = 12;
-        private const float SPAWN_RADIUS = 30f;
-        private const float MINE_HEIGHT_OFFSET = 0.3f;
+        private const int MINE_COUNT = 24;
+        private const float SPAWN_RADIUS = 15f;
+        private const float MINE_HEIGHT_OFFSET = 0f;
 
         private static int _mineUseIdCounter = int.MinValue;
 

@@ -2,7 +2,7 @@
 
 namespace GolfMayhem.Patches
 {
-    public static class GameEventHooks
+    public static class GameSessionPatch
     {
         private static bool _subscribed = false;
 
@@ -13,7 +13,7 @@ namespace GolfMayhem.Patches
             PlayerGolfer.AnyPlayerMatchResolutionChanged += OnAnyPlayerMatchResolutionChanged;
             PlayerGolfer.PlayerHitOwnBall += OnPlayerHitOwnBall;
             PlayerGolfer.AnyPlayerEliminated += OnPlayerEliminated;
-            GolfMayhemPlugin.Log.LogInfo("[GameEventHooks] Subscribed to game events.");
+            GolfMayhemPlugin.Log.LogInfo("[GolfMayhem] Subscribed to game events.");
         }
 
         public static void Unsubscribe()
@@ -23,7 +23,7 @@ namespace GolfMayhem.Patches
             PlayerGolfer.AnyPlayerMatchResolutionChanged -= OnAnyPlayerMatchResolutionChanged;
             PlayerGolfer.PlayerHitOwnBall -= OnPlayerHitOwnBall;
             PlayerGolfer.AnyPlayerEliminated -= OnPlayerEliminated;
-            GolfMayhemPlugin.Log.LogInfo("[GameEventHooks] Unsubscribed from game events.");
+            GolfMayhemPlugin.Log.LogInfo("[GolfMayhem] Unsubscribed from game events.");
         }
 
         private static void OnAnyPlayerMatchResolutionChanged(
@@ -39,12 +39,12 @@ namespace GolfMayhem.Patches
 
         private static void OnPlayerHitOwnBall(PlayerGolfer player)
         {
-            GolfMayhemPlugin.Log.LogDebug($"[GameEvents] {player?.PlayerInfo?.Name ?? "?"} hit their ball.");
+            GolfMayhemPlugin.Log.LogDebug($"[GolfMayhem] {player?.PlayerInfo?.Name ?? "?"} hit their ball.");
         }
 
         public static void OnNewHoleStarted()
         {
-            GolfMayhemPlugin.Log.LogDebug("[GameEventHooks] Per-hole state reset for new hole.");
+            GolfMayhemPlugin.Log.LogDebug("[GolfMayhem] Per-hole state reset for new hole.");
         }
     }
 }

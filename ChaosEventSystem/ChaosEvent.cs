@@ -18,6 +18,8 @@
 
         public virtual void OnUpdate() { }
 
+        public virtual float Duration => Configuration.ChaosEventDuration.Value;
+
         public virtual bool IsEnabled => true;
     }
 }

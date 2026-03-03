@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +15,8 @@ namespace GolfMayhem.ChaosEventSystem
 
         public ChaosEvent ActiveEvent { get; private set; }
         public bool IsEventActive => ActiveEvent != null;
+
+        private bool _isEventCycleRunning;
 
         private readonly List<ChaosEvent> _registeredEvents = new List<ChaosEvent>();
         private Coroutine _schedulerCoroutine;
@@ -57,6 +59,10 @@ namespace GolfMayhem.ChaosEventSystem
             Register(new Events.GolfCartChaosEvent());
             Register(new Events.CoffeeEvent());
             Register(new Events.TornadoEvent());
+            Register(new Events.GauntletEvent());
+            Register(new Events.GolfCartRaceEvent());
+            Register(new Events.RainEvent());
+            Register(new Events.VfxTestEvent());
         }
 
         public void Register(ChaosEvent evt)
@@ -77,7 +83,9 @@ namespace GolfMayhem.ChaosEventSystem
                     Configuration.ChaosEventIntervalMin.Value,
                     Configuration.ChaosEventIntervalMax.Value);
                 yield return new WaitForSeconds(interval);
-                if (!IsEventActive) TriggerRandomEvent();
+
+                if (!_isEventCycleRunning)
+                    TriggerRandomEvent();
             }
         }
 
@@ -94,36 +102,46 @@ namespace GolfMayhem.ChaosEventSystem
 
         private IEnumerator RunEventRoutine(ChaosEvent evt)
         {
-            GolfMayhemPlugin.Log.LogInfo($"[ChaosEvent] WARNING: {evt.DisplayName}");
+            _isEventCycleRunning = true;
+            try
+            {
+                GolfMayhemPlugin.Log.LogInfo($"[ChaosEvent] WARNING: {evt.DisplayName}");
+                GolfMayhemNetwork.SendWarn(evt.NetworkId, evt.WarnMessage);
 
-            // Show warning in chat on all clients
-            GolfMayhemNetwork.SendWarn(evt.NetworkId, evt.WarnMessage);
+                yield return new WaitForSeconds(3f);
 
-            yield return new WaitForSeconds(3f);
+                GolfMayhemPlugin.Log.LogInfo($"[ChaosEvent] ACTIVATING: {evt.DisplayName}");
+                ActiveEvent = evt;
+                evt.OnActivate();
+                OnChaosEventStarted?.Invoke(evt);
+                GolfMayhemNetwork.SendActivate(evt.NetworkId, evt.ActivateMessage);
 
-            // Activate on host
-            GolfMayhemPlugin.Log.LogInfo($"[ChaosEvent] ACTIVATING: {evt.DisplayName}");
-            ActiveEvent = evt;
-            evt.OnActivate();
-            OnChaosEventStarted?.Invoke(evt);
+                float elapsed = 0f;
+                while (ActiveEvent == evt)
+                {
+                    if (elapsed >= evt.Duration) break;
+                    elapsed += Time.deltaTime;
+                    yield return null;
+                }
 
-            // Show activation in chat + trigger clients
-            GolfMayhemNetwork.SendActivate(evt.NetworkId, evt.ActivateMessage);
-
-            yield return new WaitForSeconds(Configuration.ChaosEventDuration.Value);
-
-            // Deactivate on host
-            GolfMayhemPlugin.Log.LogInfo($"[ChaosEvent] DEACTIVATING: {evt.DisplayName}");
-            evt.OnDeactivate();
-            OnChaosEventEnded?.Invoke(evt);
-            ActiveEvent = null;
-
-            // Show all-clear in chat + trigger clients
-            GolfMayhemNetwork.SendDeactivate(evt.NetworkId, "Chaos subsides... for now.");
+                if (ActiveEvent == evt)
+                {
+                    GolfMayhemPlugin.Log.LogInfo($"[ChaosEvent] DEACTIVATING: {evt.DisplayName}");
+                    evt.OnDeactivate();
+                    OnChaosEventEnded?.Invoke(evt);
+                    ActiveEvent = null;
+                    GolfMayhemNetwork.SendDeactivate(evt.NetworkId, "");
+                }
+            }
+            finally
+            {
+                _isEventCycleRunning = false;
+            }
         }
 
         public void ActivateEventLocally(ChaosEvent evt)
         {
+            if (ActiveEvent == evt) return;
             ActiveEvent = evt;
             evt.OnActivate();
             OnChaosEventStarted?.Invoke(evt);
@@ -131,6 +149,7 @@ namespace GolfMayhem.ChaosEventSystem
 
         public void DeactivateEventLocally(ChaosEvent evt)
         {
+            if (ActiveEvent != evt) return;
             evt.OnDeactivate();
             OnChaosEventEnded?.Invoke(evt);
             ActiveEvent = null;

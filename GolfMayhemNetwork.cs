@@ -1,11 +1,10 @@
-using System.Reflection;
+﻿using System.Reflection;
 using HarmonyLib;
 using Mirror;
 using UnityEngine;
 
 namespace GolfMayhem
 {
-
     public static class GolfMayhemNetwork
     {
         private const string PREFIX = "##GOLFMAYHEM##";
@@ -35,6 +34,10 @@ namespace GolfMayhem
         public static void SendDeactivate(string eventName, string deactivateMessage)
             => Send($"{PREFIX}2|{eventName}|{deactivateMessage}");
 
+        // Phase 3: environment settings broadcast (rain|nightTime as 0/1)
+        public static void SendEnvironment(bool rain, bool nightTime)
+            => Send($"{PREFIX}3|env|{(rain ? 1 : 0)}|{(nightTime ? 1 : 0)}");
+
         private static void Send(string encoded)
         {
             if (!NetworkServer.active) return;
@@ -46,16 +49,30 @@ namespace GolfMayhem
             if (string.IsNullOrEmpty(message) || !message.StartsWith(PREFIX)) return false;
 
             string payload = message.Substring(PREFIX.Length);
-            // payload format: phase|eventName|displayMessage
+
+            if (payload.StartsWith("3|"))
+            {
+                var envParts = payload.Split('|');
+                if (envParts.Length >= 4)
+                {
+                    bool rain = envParts[2] == "1";
+                    bool nightTime = envParts[3] == "1";
+                    EnvironmentManager.Instance?.ApplyEnvironment(rain, nightTime);
+                }
+                return true;
+            }
+
             var parts = payload.Split(new[] { '|' }, 3);
             if (parts.Length < 3) return true;
 
             string displayMessage = parts[2];
 
-            string colorizedName = GameManager.UiSettings.ApplyColorTag("GolfMayhem", TextHighlight.Regular);
-            TextChatUi.ShowMessage($"{colorizedName}: {displayMessage}");
+            if (!string.IsNullOrEmpty(displayMessage))
+            {
+                string colorizedName = GameManager.UiSettings.ApplyColorTag("GolfMayhem", TextHighlight.Regular);
+                TextChatUi.ShowMessage($"{colorizedName}: {displayMessage}");
+            }
 
-            // Also route to ChaosEventManager on clients for local effects
             if (!NetworkServer.active)
             {
                 byte phase = byte.Parse(parts[0]);
@@ -75,7 +92,7 @@ namespace GolfMayhem
                 }
             }
 
-            return true; // suppress normal "PlayerName: message" display
+            return true;
         }
     }
 

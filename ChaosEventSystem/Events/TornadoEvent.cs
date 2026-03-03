@@ -38,7 +38,6 @@ namespace GolfMayhem.ChaosEventSystem.Events
                 _tornadoCoroutine = null;
             }
 
-            // Re-enable gravity so player falls back down naturally
             var local = GameManager.LocalPlayerInfo;
             if (local?.Rigidbody != null)
                 local.Rigidbody.useGravity = true;
@@ -50,12 +49,10 @@ namespace GolfMayhem.ChaosEventSystem.Events
         {
             var rb = player.Rigidbody;
 
-            // Snapshot the starting ground position
             Vector3 groundOrigin = rb.position;
             float elapsed = 0f;
             float angle = 0f;
 
-            // Disable gravity so we fully control vertical movement
             rb.useGravity = false;
 
             GolfMayhemPlugin.Log.LogInfo("[Tornado] Spiral started.");
@@ -67,13 +64,10 @@ namespace GolfMayhem.ChaosEventSystem.Events
 
                 float t = Mathf.Clamp01(elapsed / TOTAL_DURATION);
 
-                // Height increases linearly
                 float targetHeight = Mathf.Lerp(0f, MAX_HEIGHT, t);
 
-                // Radius expands from tight to wide (inverted cone = starts narrow)
                 float radius = Mathf.Lerp(START_RADIUS, END_RADIUS, t);
 
-                // Rotate angle
                 angle += ANGULAR_SPEED * dt;
 
                 float rad = angle * Mathf.Deg2Rad;
@@ -82,17 +76,14 @@ namespace GolfMayhem.ChaosEventSystem.Events
                     groundOrigin.y + targetHeight,
                     groundOrigin.z + Mathf.Sin(rad) * radius);
 
-                // Smoothly move rigidbody toward target position each fixed step
                 rb.MovePosition(Vector3.Lerp(rb.position, targetPos, 0.25f));
 
-                // Zero out velocity so player input doesn't fight the tornado
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
 
                 yield return new WaitForFixedUpdate();
             }
 
-            // Re-enable gravity at peak so player falls naturally
             rb.useGravity = true;
             _tornadoCoroutine = null;
             GolfMayhemPlugin.Log.LogInfo("[Tornado] Spiral complete, player falling.");

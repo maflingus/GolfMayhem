@@ -26,22 +26,23 @@ namespace GolfMayhem
             Log.LogInfo($"GolfMayhem {PluginInfo.PLUGIN_VERSION} loading...");
 
             Configuration.Initialize(Config);
+            Patches.RulesPatch.InitFromConfig();
 
             _harmony = new Harmony(PluginInfo.PLUGIN_GUID);
             _harmony.PatchAll(typeof(GolfMayhemPlugin).Assembly);
             Log.LogInfo("Harmony patches applied.");
 
-            GameEventHooks.Subscribe();
+            GameSessionPatch.Subscribe();
             CourseManager.MatchStateChanged += OnMatchStateChanged;
             GolfMayhemNetwork.Initialize();
 
-            Log.LogInfo("GolfMayhem loaded. Let chaos reign...");
+            Log.LogInfo("GolfMayhem by Maflingus loaded. Let chaos reign.");
         }
 
         private void OnDestroy()
         {
             CourseManager.MatchStateChanged -= OnMatchStateChanged;
-            GameEventHooks.Unsubscribe();
+            GameSessionPatch.Unsubscribe();
             GolfMayhemNetwork.Shutdown();
             _harmony?.UnpatchSelf();
             Log.LogInfo("GolfMayhem unloaded.");
@@ -53,13 +54,25 @@ namespace GolfMayhem
 
             switch (currentState)
             {
-                case MatchState.Ongoing:
-                    GameEventHooks.OnNewHoleStarted();
-                    if (!_systemsInjected)
+                case MatchState.TeeOff:
+                    // Spawn systems early so they exist before Ongoing
+                    if (!_systemsInjected && !SingletonBehaviour<DrivingRangeManager>.HasInstance)
                     {
                         SpawnLocalSystems();
                         _systemsInjected = true;
                     }
+
+                    // Host broadcasts environment settings to all clients
+                    if (NetworkServer.active && EnvironmentManager.Instance != null)
+                    {
+                        bool rain = RulesPatch.RainEnabled;
+                        bool nightTime = RulesPatch.NightTimeEnabled;
+                        EnvironmentManager.Instance.BroadcastEnvironment(rain, nightTime);
+                    }
+                    break;
+
+                case MatchState.Ongoing:
+                    GameSessionPatch.OnNewHoleStarted();
                     break;
 
                 case MatchState.Ended:
@@ -78,12 +91,23 @@ namespace GolfMayhem
                 chaosGO.AddComponent<ChaosEventManager>();
                 Log.LogInfo("ChaosEventManager spawned.");
             }
+
+            if (EnvironmentManager.Instance == null)
+            {
+                var envGO = new GameObject("GolfMayhem_EnvironmentManager");
+                DontDestroyOnLoad(envGO);
+                envGO.AddComponent<EnvironmentManager>();
+                Log.LogInfo("EnvironmentManager spawned.");
+            }
         }
 
         private static void CleanupGameSystems()
         {
             if (ChaosEventManager.Instance != null)
                 Destroy(ChaosEventManager.Instance.gameObject);
+
+            if (EnvironmentManager.Instance != null)
+                Destroy(EnvironmentManager.Instance.gameObject);
 
             Log.LogDebug("Game systems cleaned up.");
         }

@@ -8,6 +8,7 @@ namespace GolfMayhem.ChaosEventSystem.Events
     public class GolfCartChaosEvent : ChaosEvent
     {
         private static MethodInfo _serverEnter;
+        private static NightTimeEvent e;
 
         public override string DisplayName => "Golf Cart Chaos";
         public override string NetworkId => "GolfCartChaos";
@@ -65,7 +66,6 @@ namespace GolfMayhem.ChaosEventSystem.Events
                 NetworkServer.Spawn(cart.gameObject);
                 cart.ServerReserveDriverSeatPostNetworkSpawn();
 
-                // Seat the player immediately — no reservation dance needed server-side
                 try
                 {
                     _serverEnter.Invoke(cart, new object[] { player });
@@ -76,6 +76,9 @@ namespace GolfMayhem.ChaosEventSystem.Events
                 {
                     GolfMayhemPlugin.Log.LogError($"[GolfCartChaos] ServerEnter failed for {player.Name}: {ex.Message}");
                 }
+                e = new NightTimeEvent();
+
+                e.OnActivate();
             }
 
             GolfMayhemPlugin.Log.LogInfo($"[GolfCartChaos] Done. {spawned}/{players.Count} players seated.");
@@ -84,6 +87,7 @@ namespace GolfMayhem.ChaosEventSystem.Events
         public override void OnDeactivate()
         {
             GolfMayhemPlugin.Log.LogInfo("[GolfCartChaos] Deactivated.");
+            e.OnDeactivate();
         }
     }
 }
